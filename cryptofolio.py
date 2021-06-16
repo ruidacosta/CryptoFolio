@@ -39,8 +39,8 @@ def process_arguments():
     parser = argparse.ArgumentParser(
         description='Control cryptocurrency protfolio PNL (Profit and Loss) using IEX Cloud API.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__, help='show version')
-    parser.add_argument('-d', '--data', action='store', dest='data', help='data file')
-    parser.add_argument('-c', '--config', action='store', dest='config', help='')
+    parser.add_argument('-d', '--data', action='store', dest='data', help=f'data file path ({Style.BOLD}default:{Style.ENDC} ~/.cryptofolio/folio.data)')
+    parser.add_argument('-c', '--config', action='store', dest='config', help=f'configuration file path ({Style.BOLD}default:{Style.ENDC} ~/.cryptofolio/cryptofolio.config)')
 
     subparsers = parser.add_subparsers(dest='command', help='Subparsers')
 
