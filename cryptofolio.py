@@ -42,7 +42,7 @@ def process_arguments():
     parser.add_argument('-d', '--data', action='store', dest='data', help=f'data file path ({Style.BOLD}default:{Style.ENDC} ~/.cryptofolio/folio.data)')
     parser.add_argument('-c', '--config', action='store', dest='config', help=f'configuration file path ({Style.BOLD}default:{Style.ENDC} ~/.cryptofolio/cryptofolio.config)')
 
-    subparsers = parser.add_subparsers(dest='command', help='Subparsers')
+    subparsers = parser.add_subparsers(dest='command', help='Subparsers', required=True)
 
     list_command = subparsers.add_parser('list', help='list command')
 
@@ -104,7 +104,10 @@ def save_data(file_data: str, data: list[Position]):
 def get_crypto_price_from_api(url: str, ticker: str, token: str):
     url = f'{url}/{ticker}/price?token={token}'
     r = requests.get(url)
-    return r.json()
+    if r.status_code == 200:
+        return r.json()
+    else:
+        return None
 
 
 def add_position(ticker: str, quantity: float, buy_price: float, data: list[Position]) -> (str, list, list[Position]):
@@ -136,13 +139,15 @@ def list_positions(data: list[Position], configs: configparser.ConfigParser) -> 
     for position in data:
         api_data = get_crypto_price_from_api(configs['IEX CLOUD API']['url'], position.ticker,
                                              configs['IEX CLOUD API']['tokem'])
-        position.calc_pnl(float(api_data['price']))
+        if api_data:
+            position.calc_pnl(float(api_data['price']))
         rows.append(position.as_prettytable_row())
     return None, rows, data
 
 
 def process_command(args, configs):
     data: list[Position]
+    rows = None
     if args['data']:
         data = load_data(args['data'])
     else:
